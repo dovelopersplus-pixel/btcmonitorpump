@@ -490,8 +490,10 @@ st.markdown(f"""
 c1, c2, c3, c4, c5 = st.columns(5)
 with c1: st.metric("₿ BTC Price",        f"${price:,.0f}" if price else "—")
 with c2: st.metric("🐋 Whale Orders",     f"{len(orders):,}")
-with c3: st.metric("🟢 BUY Orders",       f"{len([o for o in orders if o['side']=='BUY']):,}",  delta=f"+{buy_pct:.1f}%")
-with c4: st.metric("🔴 SELL Orders",      f"{len([o for o in orders if o['side']=='SELL']):,}", delta=f"-{100-buy_pct:.1f}%")
+buy_vol_str  = f"${total_buy/1e6:.2f}M" if total_buy >= 1e6 else f"${total_buy/1e3:.0f}K"
+sell_vol_str = f"-${total_sell/1e6:.2f}M" if total_sell >= 1e6 else f"-${total_sell/1e3:.0f}K"
+with c3: st.metric("🟢 BUY Orders",       f"{len([o for o in orders if o['side']=='BUY']):,}",  delta=buy_vol_str)
+with c4: st.metric("🔴 SELL Orders",      f"{len([o for o in orders if o['side']=='SELL']):,}", delta=sell_vol_str)
 with c5: st.metric("💰 Total Volume",     f"${total_vol/1e6:.2f}M" if total_vol >= 1e6 else f"${total_vol/1e3:.0f}K")
 
 st.markdown("<div style='margin:0.6rem 0'/>", unsafe_allow_html=True)
