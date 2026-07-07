@@ -106,17 +106,25 @@ for key, val in [
 # ─────────────────────────────────────────────────────────────────────────────
 
 def fetch_btc_price():
-    """Try multiple sources for BTC price."""
+    """Try multiple sources for BTC price to avoid cloud IP bans."""
     urls = [
-        ("Binance", "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
+        ("Binance", "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT"),
+        ("Kraken",  "https://api.kraken.com/0/public/Ticker?pair=XBTUSD"),
+        ("Coinbase","https://api.exchange.coinbase.com/products/BTC-USD/ticker"),
         ("Bybit",   "https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT"),
     ]
     for name, url in urls:
         try:
-            r = requests.get(url, timeout=6)
+            r = requests.get(url, timeout=6, headers={"User-Agent": "Mozilla/5.0"})
             if r.status_code == 200:
                 data = r.json()
                 if name == "Binance":
+                    return float(data["price"])
+                elif name == "Kraken":
+                    result = data.get("result", {})
+                    book = result.get("XXBTZUSD") or result.get("XBTUSD") or list(result.values())[0]
+                    return float(book["c"][0])
+                elif name == "Coinbase":
                     return float(data["price"])
                 elif name == "Bybit":
                     return float(data["result"]["list"][0]["lastPrice"])
@@ -160,8 +168,9 @@ def _parse_book(entries, side, exchange, threshold_usd, current_price=None):
 def fetch_binance(threshold_usd, current_price=None):
     try:
         r = requests.get(
-            "https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=500",
-            timeout=10
+            "https://data-api.binance.vision/api/v3/depth?symbol=BTCUSDT&limit=500",
+            timeout=10,
+            headers={"User-Agent": "Mozilla/5.0"}
         )
         r.raise_for_status()
         data = r.json()
