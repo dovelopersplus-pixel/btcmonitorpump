@@ -111,7 +111,7 @@ def fetch_btc_price():
         ("Binance", "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT"),
         ("Kraken",  "https://api.kraken.com/0/public/Ticker?pair=XBTUSD"),
         ("Coinbase","https://api.exchange.coinbase.com/products/BTC-USD/ticker"),
-        ("Bybit",   "https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT"),
+        ("Bybit",   "https://api.bytick.com/v5/market/tickers?category=spot&symbol=BTCUSDT"),
     ]
     for name, url in urls:
         try:
@@ -184,8 +184,9 @@ def fetch_binance(threshold_usd, current_price=None):
 def fetch_bybit(threshold_usd, current_price=None):
     try:
         r = requests.get(
-            "https://api.bybit.com/v5/market/orderbook?category=spot&symbol=BTCUSDT&limit=200",
-            timeout=10
+            "https://api.bytick.com/v5/market/orderbook?category=spot&symbol=BTCUSDT&limit=200",
+            timeout=10,
+            headers={"User-Agent": "Mozilla/5.0"}
         )
         r.raise_for_status()
         data = r.json().get("result", {})
